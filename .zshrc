@@ -27,7 +27,7 @@ SAVEHIST=1000
 # Variables
 #------------------------------
 export BROWSER="firefox"
-export EDITOR="nvim"
+export EDITOR="vim"
 export PATH="${PATH}:${HOME}/bin:${HOME}/.cabal/bin"
 export GOPATH="$HOME/go"
 
@@ -210,7 +210,7 @@ setopt PUSHD_MINUS
 alias ls='ls --color=auto'
 
 ### git dotfiles
-alias config='/usr/bin/git --git-dir=/home/lee/.cfg/ --work-tree=/home/lee'
+#alias config='/usr/bin/git --git-dir=/home/lee/.cfg/ --work-tree=/home/lee'
 
 
 ### ssh-agent start
