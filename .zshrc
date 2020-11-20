@@ -96,9 +96,9 @@ zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %
 zstyle ':completion::complete:*' use-cache 1
 
 #- buggy
-zstyle ':completion:*:descriptions' format '%U%F{cyan}%d%f%u'
-zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
-zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
+#zstyle ':completion:*:descriptions' format '%U%F{cyan}%d%f%u'
+#zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
+#zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 #-/buggy
 
 zstyle ':completion:*:pacman:*' force-list always
