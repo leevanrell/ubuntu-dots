@@ -6,6 +6,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 
+COLOR_SCHEME=dark # dark/light
+
 #-----------------------------
 # Source some stuff
 #-----------------------------
@@ -44,25 +46,62 @@ bindkey -v
 typeset -g -A key
 bindkey '^?' backward-delete-char
 bindkey '^R' history-incremental-search-backward
-bindkey '^[[5~' up-line-or-history
+# bindkey '^[[5~' up-line-or-history
+# bindkey '^[[3~' delete-char
+# bindkey '^[[6~' down-line-or-history
+# bindkey '^[[A' up-line-or-search
+# bindkey '^[[D' backward-char
+# bindkey '^[[B' down-line-or-search
+# bindkey '^[[C' forward-char 
+# bindkey "^[[H" beginning-of-line
+# bindkey "^[[F" end-of-line
+bindkey '^U' backward-kill-line
+bindkey '^[[2~' overwrite-mode
 bindkey '^[[3~' delete-char
-bindkey '^[[6~' down-line-or-history
-bindkey '^[[A' up-line-or-search
-bindkey '^[[D' backward-char
-bindkey '^[[B' down-line-or-search
-bindkey '^[[C' forward-char 
-bindkey "^[[H" beginning-of-line
-bindkey "^[[F" end-of-line
+bindkey '^[[H' beginning-of-line
+bindkey '^[[1~' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[[4~' end-of-line
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+bindkey '^[[3;5~' kill-word
+bindkey '^[[5~' beginning-of-buffer-or-history
+bindkey '^[[6~' end-of-buffer-or-history
+bindkey '^[[Z' undo
+bindkey ' ' magic-space
+
 
 #------------------------------
 # Alias stuff
 #------------------------------
 alias ls="ls --color -F"
 alias ll="ls --color -lh"
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias diff='diff --color=auto'
+alias ip='ip --color=auto'
+alias pacman='pacman --color=auto'
 alias gr="gvim --remote-silent"
 alias vr="vim --remote-silent"
+alias upz="source ~/.zshrc"
 alias pyenv="source env/bin/activate"
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+
+### CAT & LESS
+command -v bat > /dev/null && \
+  alias bat='bat --theme=ansi-$([ "$COLOR_SCHEME" = "light" ] && echo "light" || echo "dark")' && \
+  alias cat='bat --pager=never' && \
+  alias less='bat'
+
+### TOP
+command -v htop > /dev/null && alias top='htop'
+command -v gotop > /dev/null && alias top='gotop -p $([ "$COLOR_SCHEME" = "light" ] && echo "-c default-dark")'
+command -v ytop > /dev/null && alias top='ytop -p $([ "$COLOR_SCHEME" = "light" ] && echo "-c default-dark")'
+# themes for light/dark color-schemes inside ~/.config/bashtop; Press ESC to open the menu and change the theme
+command -v bashtop > /dev/null && alias top='bashtop'
+command -v bpytop > /dev/null && alias top='bpytop'
+
 
 #------------------------------
 # ShellFuncs
@@ -83,34 +122,40 @@ man() {
 #------------------------------
 # Comp stuff
 #------------------------------
-zmodload zsh/complist 
+setopt AUTO_CD
+setopt BEEP
+#setopt CORRECT
+setopt HIST_BEEP
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_VERIFY
+setopt INC_APPEND_HISTORY
+setopt INTERACTIVE_COMMENTS
+setopt MAGIC_EQUAL_SUBST
+setopt NO_NO_MATCH
+setopt NOTIFY
+setopt NUMERIC_GLOB_SORT
+setopt PROMPT_SUBST
+setopt SHARE_HISTORY
+
+HISTFILE="$HOME/.cache/zsh_history"
+HIST_STAMPS=mm/dd/yyyy
+HISTSIZE=5000
+SAVEHIST=5000
+ZLE_RPROMPT_INDENT=0
+WORDCHARS=${WORDCHARS//\/}
+PROMPT_EOL_MARK=
+
 autoload -Uz compinit
-compinit
-zstyle :compinstall filename '${HOME}/.zshrc'
+compinit -d ~/.cache/zcompdump
+zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
-# Completion.
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-zstyle ':completion:*' completer _expand _complete _ignored _approximate
-zstyle ':completion:*' menu select=2
-zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
-zstyle ':completion::complete:*' use-cache 1
-
-#- buggy
-#zstyle ':completion:*:descriptions' format '%U%F{cyan}%d%f%u'
-#zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
-#zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
-#-/buggy
-
-zstyle ':completion:*:pacman:*' force-list always
-zstyle ':completion:*:*:pacman:*' menu yes select
-
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
-
-zstyle ':completion:*:*:kill:*' menu yes select
-zstyle ':completion:*:kill:*'   force-list always
-
-zstyle ':completion:*:*:killall:*' menu yes select
-zstyle ':completion:*:killall:*'   force-list always
 
 #------------------------------
 # Window title
@@ -173,6 +218,68 @@ setprompt() {
 }
 setprompt
 
+# ------------------------------- ZSH PLUGINS ---------------------------------
+# Plugin source helper
+_source_plugin() {
+  local plugin_name="$1"
+  for basedir in /usr/share/zsh/plugins /usr/share
+  do
+    plugin="$basedir/$plugin_name/$plugin_name.zsh"
+    [ -f "$plugin" ] && source "$plugin" && return 0
+  done
+  echo "\033[33m[ ! ]\033[0m ZSH ${plugin_name#zsh-} not installed"
+  return 1
+}
+
+# ZSH Autosuggestions
+_source_plugin zsh-autosuggestions && ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'
+
+# ZSH Syntax Highlighting
+if _source_plugin zsh-syntax-highlighting
+then
+  ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+  ZSH_HIGHLIGHT_STYLES[default]=none
+  ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=red,bold
+  ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=cyan,bold
+  ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=green,underline
+  ZSH_HIGHLIGHT_STYLES[global-alias]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[precommand]=fg=green,underline
+  ZSH_HIGHLIGHT_STYLES[commandseparator]=fg=blue,bold
+  ZSH_HIGHLIGHT_STYLES[autodirectory]=fg=green,underline
+  ZSH_HIGHLIGHT_STYLES[path]=underline
+  ZSH_HIGHLIGHT_STYLES[path_pathseparator]=
+  ZSH_HIGHLIGHT_STYLES[path_prefix_pathseparator]=
+  ZSH_HIGHLIGHT_STYLES[globbing]=fg=blue,bold
+  ZSH_HIGHLIGHT_STYLES[history-expansion]=fg=blue,bold
+  ZSH_HIGHLIGHT_STYLES[command-substitution]=none
+  ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[process-substitution]=none
+  ZSH_HIGHLIGHT_STYLES[process-substitution-delimiter]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[single-hyphen-option]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[double-hyphen-option]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[back-quoted-argument]=none
+  ZSH_HIGHLIGHT_STYLES[back-quoted-argument-delimiter]=fg=blue,bold
+  ZSH_HIGHLIGHT_STYLES[single-quoted-argument]=fg=yellow
+  ZSH_HIGHLIGHT_STYLES[double-quoted-argument]=fg=yellow
+  ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]=fg=yellow
+  ZSH_HIGHLIGHT_STYLES[rc-quote]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[dollar-double-quoted-argument]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]=fg=magenta
+  ZSH_HIGHLIGHT_STYLES[assign]=none
+  ZSH_HIGHLIGHT_STYLES[redirection]=fg=blue,bold
+  ZSH_HIGHLIGHT_STYLES[comment]=fg=black,bold
+  ZSH_HIGHLIGHT_STYLES[named-fd]=none
+  ZSH_HIGHLIGHT_STYLES[numeric-fd]=none
+  ZSH_HIGHLIGHT_STYLES[arg0]=fg=green
+  ZSH_HIGHLIGHT_STYLES[bracket-error]=fg=red,bold
+  ZSH_HIGHLIGHT_STYLES[bracket-level-1]=fg=blue,bold
+  ZSH_HIGHLIGHT_STYLES[bracket-level-2]=fg=green,bold
+  ZSH_HIGHLIGHT_STYLES[bracket-level-3]=fg=magenta,bold
+  ZSH_HIGHLIGHT_STYLES[bracket-level-4]=fg=yellow,bold
+  ZSH_HIGHLIGHT_STYLES[bracket-level-5]=fg=cyan,bold
+  ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]=standout
+fi
 
 #------------------------------
 # Lee Customization
@@ -183,31 +290,37 @@ promptinit
 #prompt walters
 zstyle ':completion::complete:*' gain-privileges 1
 
-### ZSH dir stack ###
-autoload -Uz add-zsh-hook
+# ### ZSH dir stack ###
+# autoload -Uz add-zsh-hook
 
-DIRSTACKFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/dirs"
-if [[ -f "$DIRSTACKFILE" ]] && (( ${#dirstack} == 0 )); then
-	dirstack=("${(@f)"$(< "$DIRSTACKFILE")"}")
-	[[ -d "${dirstack[1]}" ]] && cd -- "${dirstack[1]}"
-fi
-chpwd_dirstack() {
-	print -l -- "$PWD" "${(u)dirstack[@]}" > "$DIRSTACKFILE"
-}
-add-zsh-hook -Uz chpwd chpwd_dirstack
+# DIRSTACKFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/dirs"
+# if [[ -f "$DIRSTACKFILE" ]] && (( ${#dirstack} == 0 )); then
+# 	dirstack=("${(@f)"$(< "$DIRSTACKFILE")"}")
+# 	[[ -d "${dirstack[1]}" ]] && cd -- "${dirstack[1]}"
+# fi
+# chpwd_dirstack() {
+# 	print -l -- "$PWD" "${(u)dirstack[@]}" > "$DIRSTACKFILE"
+# }
+# add-zsh-hook -Uz chpwd chpwd_dirstack
 
-DIRSTACKSIZE='20'
+# DIRSTACKSIZE='20'
 
-setopt AUTO_PUSHD PUSHD_SILENT PUSHD_TO_HOME
+# setopt AUTO_PUSHD PUSHD_SILENT PUSHD_TO_HOME
 
-## Remove duplicate entries
-setopt PUSHD_IGNORE_DUPS
+# ## Remove duplicate entries
+# setopt PUSHD_IGNORE_DUPS
 
-## This reverts the +/- operators.
-setopt PUSHD_MINUS
+# ## This reverts the +/- operators.
+# setopt PUSHD_MINUS
 
-### LS colors ###
-alias ls='ls --color=auto'
+
+# if this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+  precmd() { print -Pnr -- $'\e]0;%n@%m: %~\a' }
+  ;;
+esac
+
 
 ### git dotfiles
 #alias config='/usr/bin/git --git-dir=/home/lee/.cfg/ --work-tree=/home/lee'
