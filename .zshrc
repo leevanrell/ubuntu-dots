@@ -85,6 +85,7 @@ alias pacman='pacman --color=auto'
 alias gr="gvim --remote-silent"
 alias vr="vim --remote-silent"
 alias upz="source ~/.zshrc"
+alias mkpy="python3 -m venv env"
 alias pyenv="source env/bin/activate"
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
@@ -140,7 +141,7 @@ setopt NO_NO_MATCH
 setopt NOTIFY
 setopt NUMERIC_GLOB_SORT
 setopt PROMPT_SUBST
-setopt SHARE_HISTORY
+#setopt SHARE_HISTORY 
 
 HISTFILE="$HOME/.cache/zsh_history"
 HIST_STAMPS=mm/dd/yyyy
