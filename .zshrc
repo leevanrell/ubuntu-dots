@@ -85,7 +85,8 @@ alias pacman='pacman --color=auto'
 alias gr="gvim --remote-silent"
 alias vr="vim --remote-silent"
 alias upz="source ~/.zshrc"
-alias mkpy="python3 -m venv env"
+#alias mkpy="python3 -m venv env"
+alias mkpy="virtualenv --python=/usr/bin/python3.8 env"
 alias pyenv="source env/bin/activate"
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
@@ -141,7 +142,7 @@ setopt NO_NO_MATCH
 setopt NOTIFY
 setopt NUMERIC_GLOB_SORT
 setopt PROMPT_SUBST
-#setopt SHARE_HISTORY 
+setopt SHARE_HISTORY 
 
 HISTFILE="$HOME/.cache/zsh_history"
 HIST_STAMPS=mm/dd/yyyy
@@ -335,6 +336,14 @@ if [[ ! "$SSH_AUTH_SOCK" ]]; then
     source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 fi
 source ~/.powerlevel10k/powerlevel10k.zsh-theme
+
+# export PYTHONPATH=/usr/lib/python38.zip/:$PYTHONPATH
+# export PYTHONPATH=/usr/lib/python3/:$PYTHONPATH
+# export PYTHONPATH=/usr/lib/python3.8/:$PYTHONPATH
+# export PYTHONPATH=/usr/lib/python3/dist-packages/:$PYTHONPATH
+# export PYTHONPATH=/usr/local/lib/python3/dist-packages/:$PYTHONPATH
+# export PYTHONPATH=/usr/local/lib/python3/dist-packages/:$PYTHONPATH
+# export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
