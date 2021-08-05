@@ -1,6 +1,7 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
+
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -12,21 +13,25 @@ fi
 if [ -f ~/.envs ]; then
     . ~/.envs
 fi
+eval $(thefuck --alias)
 
+if [ -f ~/.envs_secrets ]; then
+    . ~/.envs_secrets
+fi
 #------------------------------
-# Zgen stuff
+# Zgen/plugin stuff
 #------------------------------
 
-[[ -d "$ZGEN_DIR" ]] || git clone https://github.com/tarjoilija/zgen.git --depth=1 "$ZGEN_DIR"
-ZGEN_RESET_ON_CHANGE=(
-  ${ZDOTDIR:-$HOME}/.zshrc
-  ${ZDOTDIR:-$HOME}/zsh_plugins
-)
+#[[ -d "$ZGEN_DIR" ]] || git clone https://github.com/tarjoilija/zgen.git --depth=1 "$ZGEN_DIR"
+# ZGEN_RESET_ON_CHANGE=(
+#  ${ZDOTDIR:-$HOME}/.zshrc
+#  ${ZDOTDIR:-$HOME}/zsh_plugins
+# )
 
 source "${HOME}/.zgen/zgen.zsh"
 if ! zgen saved; then
 
-  # specify plugins here
+  # base
   zgen oh-my-zsh
 
   # oh-my-zsh plugin
@@ -39,6 +44,7 @@ if ! zgen saved; then
   # generate the init script from plugins above
   zgen save
 fi
+
 
 COLOR_SCHEME=dark # dark/light
 BASE16_SHELL="$HOME/.config/base16-shell/base16-default.dark.sh"
