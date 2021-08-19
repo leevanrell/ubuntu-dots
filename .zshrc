@@ -13,7 +13,7 @@ fi
 if [ -f ~/.envs ]; then
     . ~/.envs
 fi
-eval $(thefuck --alias)
+#eval $(thefuck --alias)
 
 if [ -f ~/.envs_secrets ]; then
     . ~/.envs_secrets
