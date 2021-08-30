@@ -1,11 +1,12 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-
+# Enable Powerlevel10k instant prompt.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+
+#------------------------------
+# Setup envs and aliases
+#------------------------------
 if [ -f ~/.aliases ]; then
     . ~/.aliases
 fi
@@ -13,26 +14,24 @@ fi
 if [ -f ~/.envs ]; then
     . ~/.envs
 fi
-#eval $(thefuck --alias)
 
 if [ -f ~/.envs_secrets ]; then
     . ~/.envs_secrets
 fi
+
+
 #------------------------------
 # Zgen/plugin stuff
 #------------------------------
-
-#[[ -d "$ZGEN_DIR" ]] || git clone https://github.com/tarjoilija/zgen.git --depth=1 "$ZGEN_DIR"
-# ZGEN_RESET_ON_CHANGE=(
-#  ${ZDOTDIR:-$HOME}/.zshrc
-#  ${ZDOTDIR:-$HOME}/zsh_plugins
-# )
-
 source "${HOME}/.zgen/zgen.zsh"
 if ! zgen saved; then
 
   # base
   zgen oh-my-zsh
+
+  # prezto
+  #zgen prezto
+  #zgen prezto command-not-found
 
   # oh-my-zsh plugin
   zgen load zsh-users/ssh-agent
@@ -41,21 +40,26 @@ if ! zgen saved; then
   zgen load zsh-users/zsh-history-substring-search
   zgen load zsh-users/zsh-syntax-highlighting
 
+  zgen load romkatv/powerlevel10k powerlevel10k
+
   # generate the init script from plugins above
   zgen save
 fi
 
+#zgen selfupdate
 
 COLOR_SCHEME=dark # dark/light
 BASE16_SHELL="$HOME/.config/base16-shell/base16-default.dark.sh"
 [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
 
+
 #------------------------------
 # History stuff
 #------------------------------
 HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=5000
+SAVEHIST=5000
+
 
 #------------------------------
 # Keybindings
@@ -63,20 +67,15 @@ SAVEHIST=1000
 bindkey -v
 typeset -g -A key
 bindkey '^?' backward-delete-char
-bindkey '^R' history-incremental-search-backward
-bindkey '^U' backward-kill-line
-bindkey '^[[2~' overwrite-mode
+bindkey '^[[5~' up-line-or-history
 bindkey '^[[3~' delete-char
-bindkey '^[[H' beginning-of-line
-bindkey '^[[1~' beginning-of-line
-bindkey '^[[F' end-of-line
-bindkey '^[[4~' end-of-line
-bindkey '^[[1;5C' forward-word
-bindkey '^[[1;5D' backward-word
-bindkey '^[[3;5~' kill-word
-bindkey '^[[5~' beginning-of-buffer-or-history
-bindkey '^[[6~' end-of-buffer-or-history
-bindkey '^[[Z' undo
+bindkey '^[[6~' down-line-or-history
+bindkey '^[[A' up-line-or-search
+bindkey '^[[D' backward-char
+bindkey '^[[B' down-line-or-search
+bindkey '^[[C' forward-char 
+bindkey "^[[H" beginning-of-line
+bindkey "^[[F" end-of-line
 bindkey ' ' magic-space
 
 ### CAT & LESS
@@ -89,7 +88,6 @@ command -v bat > /dev/null && \
 command -v htop > /dev/null && alias top='htop'
 command -v gotop > /dev/null && alias top='gotop -p $([ "$COLOR_SCHEME" = "light" ] && echo "-c default-dark")'
 command -v ytop > /dev/null && alias top='ytop -p $([ "$COLOR_SCHEME" = "light" ] && echo "-c default-dark")'
-# themes for light/dark color-schemes inside ~/.config/bashtop; Press ESC to open the menu and change the theme
 command -v bashtop > /dev/null && alias top='bashtop'
 command -v bpytop > /dev/null && alias top='bpytop'
 
@@ -98,21 +96,60 @@ command -v bpytop > /dev/null && alias top='bpytop'
 # ShellFuncs
 #------------------------------
 # -- coloured manuals
-man() {
-  env \
-    LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-    LESS_TERMCAP_md=$(printf "\e[1;31m") \
-    LESS_TERMCAP_me=$(printf "\e[0m") \
-    LESS_TERMCAP_se=$(printf "\e[0m") \
-    LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
-    LESS_TERMCAP_ue=$(printf "\e[0m") \
-    LESS_TERMCAP_us=$(printf "\e[1;32m") \
-    man "$@"
-}
+# man() {
+#   env \
+#     LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+#     LESS_TERMCAP_md=$(printf "\e[1;31m") \
+#     LESS_TERMCAP_me=$(printf "\e[0m") \
+#     LESS_TERMCAP_se=$(printf "\e[0m") \
+#     LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+#     LESS_TERMCAP_ue=$(printf "\e[0m") \
+#     LESS_TERMCAP_us=$(printf "\e[1;32m") \
+#     man "$@"
+# }
+
 
 #------------------------------
 # Comp stuff
 #------------------------------
+# ZLE_RPROMPT_INDENT=0
+# WORDCHARS=${WORDCHARS//\/}
+# PROMPT_EOL_MARK=
+
+# autoload -Uz compinit
+# compinit -d ~/.cache/zcompdump
+# zstyle ':completion:*:*:*:*:*' menu select
+# zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+# zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zmodload zsh/complist 
+autoload -Uz compinit
+compinit
+zstyle :compinstall filename '${HOME}/.zshrc'
+
+# Completion.
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' completer _expand _complete _ignored _approximate
+zstyle ':completion:*' menu select=2
+zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
+zstyle ':completion::complete:*' use-cache 1
+
+#- buggy
+zstyle ':completion:*:descriptions' format '%U%F{cyan}%d%f%u'
+zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
+zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
+#-/buggy
+
+zstyle ':completion:*:pacman:*' force-list always
+zstyle ':completion:*:*:pacman:*' menu yes select
+
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*'   force-list always
+
+zstyle ':completion:*:*:killall:*' menu yes select
+zstyle ':completion:*:killall:*'   force-list always
+
 setopt AUTO_CD
 setopt BEEP
 #setopt CORRECT
@@ -132,20 +169,8 @@ setopt NOTIFY
 setopt NUMERIC_GLOB_SORT
 setopt PROMPT_SUBST
 setopt SHARE_HISTORY 
-
-HISTFILE="$HOME/.cache/zsh_history"
-HIST_STAMPS=mm/dd/yyyy
-HISTSIZE=5000
-SAVEHIST=5000
-ZLE_RPROMPT_INDENT=0
-WORDCHARS=${WORDCHARS//\/}
-PROMPT_EOL_MARK=
-
-autoload -Uz compinit
-compinit -d ~/.cache/zcompdump
-zstyle ':completion:*:*:*:*:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_MINUS
 
 
 #------------------------------
@@ -171,6 +196,7 @@ case $TERM in
     }
     ;; 
 esac
+
 
 #------------------------------
 # Prompt
