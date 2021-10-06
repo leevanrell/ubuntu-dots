@@ -251,14 +251,18 @@ esac
 
 zstyle :omz:plugins:ssh-agent identities ~/.ssh/git_rsa
 
-### git dotfiles
-#alias config='/usr/bin/git --git-dir=/home/lee/.cfg/ --work-tree=/home/lee'
 
-if [[ ! "$SSH_AUTH_SOCK" ]]; then
-    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+# start ssh keyring and what not
+if [ -n "$DESKTOP_SESSION" ];then
+    eval $(gnome-keyring-daemon --start)
+    export SSH_AUTH_SOCK
 fi
-source ~/.powerlevel10k/powerlevel10k.zsh-theme
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+#if [[ ! "$SSH_AUTH_SOCK" ]]; then
+#    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+#fi
+
+# start p10k setup
+source ~/.powerlevel10k/powerlevel10k.zsh-theme
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
