@@ -76,7 +76,12 @@ bindkey '^[[B' down-line-or-search
 bindkey '^[[C' forward-char 
 bindkey "^[[H" beginning-of-line
 bindkey "^[[F" end-of-line
+bindkey '^?' backward-delete-char
+bindkey '^R' history-incremental-search-backward
+bindkey '^U' backward-kill-line
 bindkey ' ' magic-space
+
+
 
 ### CAT & LESS
 command -v bat > /dev/null && \
@@ -112,15 +117,7 @@ command -v bpytop > /dev/null && alias top='bpytop'
 #------------------------------
 # Comp stuff
 #------------------------------
-# ZLE_RPROMPT_INDENT=0
-# WORDCHARS=${WORDCHARS//\/}
-# PROMPT_EOL_MARK=
 
-# autoload -Uz compinit
-# compinit -d ~/.cache/zcompdump
-# zstyle ':completion:*:*:*:*:*' menu select
-# zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-# zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zmodload zsh/complist 
 autoload -Uz compinit
 compinit
