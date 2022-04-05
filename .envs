@@ -10,3 +10,4 @@ export LS_COLORS
 export ZGEN_DIR="${ZDOTDIR:-$HOME}"/.zgen
 export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3/dist-packages
 export PATH="$PATH:/opt/mssql-tools/bin"
+export GO111MODULE=on

@@ -30,11 +30,10 @@ if ! zgen saved; then
   zgen oh-my-zsh
 
   # prezto
-  #zgen prezto
-  #zgen prezto command-not-found
 
   # oh-my-zsh plugin
   zgen load zsh-users/ssh-agent
+  #zgen load srijanshetty/zsh-pip-completion
   zgen load zsh-users/zsh-autosuggestions
   zgen load zsh-users/zsh-completions
   zgen load zsh-users/zsh-history-substring-search
@@ -71,7 +70,9 @@ bindkey '^[[5~' up-line-or-history
 bindkey '^[[3~' delete-char
 bindkey '^[[6~' down-line-or-history
 bindkey '^[[A' up-line-or-search
+#bindkey '^[[A' history-substring-search-up
 bindkey '^[[D' backward-char
+#bindkey '^[[B' history-substring-search-down
 bindkey '^[[B' down-line-or-search
 bindkey '^[[C' forward-char 
 bindkey "^[[H" beginning-of-line
@@ -131,9 +132,9 @@ zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %
 zstyle ':completion::complete:*' use-cache 1
 
 #- buggy
-zstyle ':completion:*:descriptions' format '%U%F{cyan}%d%f%u'
-zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
-zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
+#zstyle ':completion:*:descriptions' format '%U%F{cyan}%d%f%u'
+#zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
+#zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 #-/buggy
 
 zstyle ':completion:*:pacman:*' force-list always
@@ -149,7 +150,7 @@ zstyle ':completion:*:killall:*'   force-list always
 
 setopt AUTO_CD
 setopt BEEP
-#setopt CORRECT
+setopt CORRECT
 setopt HIST_BEEP
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_FIND_NO_DUPS
@@ -237,9 +238,10 @@ setprompt
 # Lee Customization
 #------------------------------
 # Created by newuser for 5.8
-autoload -Uz promptinit add-zsh-hook
-promptinit
-#prompt walters
+autoload -Uz add-zsh-hook
+ autoload -Uz promptinit
+ promptinit
+prompt walters
 zstyle ':completion::complete:*' gain-privileges 1
 
 # if this is an xterm set the title to user@host:dir
@@ -249,18 +251,15 @@ xterm*|rxvt*)
   ;;
 esac
 
-zstyle :omz:plugins:ssh-agent identities ~/.ssh/git_rsa
 
+# ssh agent
+zstyle :omz:plugins:ssh-agent identities ~/.ssh/git_rsa
 
 # start ssh keyring and what not
 if [ -n "$DESKTOP_SESSION" ];then
     eval $(gnome-keyring-daemon --start)
     export SSH_AUTH_SOCK
 fi
-
-#if [[ ! "$SSH_AUTH_SOCK" ]]; then
-#    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
-#fi
 
 # start p10k setup
 source ~/.powerlevel10k/powerlevel10k.zsh-theme
